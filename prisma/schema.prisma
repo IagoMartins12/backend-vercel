@@ -1,0 +1,263 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  email          String    @unique
+  emailVerified  DateTime?
+  name           String?
+  password       String?
+  image          String?
+  phone          String?
+  token          String?
+  createdAt      DateTime  @default(now())
+  role           Int       @default(0)
+  user_Adress_id String?   @db.ObjectId
+  points         Int       @default(0)
+
+  orders                Order[]
+  account               Account[]
+  user_adress           User_Adress[]
+  discount_cupom_orders Discount_cupom_orders[]
+  reward_orders         Reward_orders[]
+  cart                  Cart[]
+  favorites             Favorite[]
+}
+
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  user_id           String  @db.ObjectId
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.String
+  access_token      String? @db.String
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.String
+  session_state     String?
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model User_Adress {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  user_id     String  @db.ObjectId
+  cep         String?
+  address     String
+  number      String
+  city        String
+  uf          String
+  reference   String?
+  district    String
+  type_adress Int
+  isActive    Int     @default(0) // 0 - ativo, 1 - inativo 
+
+  user  User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  order Order[]
+}
+
+model Order {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  user_id            String?  @db.ObjectId
+  cart_id            String   @db.ObjectId
+  order_date         DateTime @default(now())
+  state_id           String?  @db.ObjectId
+  total_amount       Float    @default(0)
+  type_pagament_id   String   @db.ObjectId
+  delivery_man_id    String?  @db.ObjectId
+  user_adress_id     String?  @db.ObjectId
+  contact_phone      String
+  discount_value     Float?
+  discount_coupon_id String?  @db.ObjectId
+  type_delivery      Int      @default(0) //0 - delivery, 1 - balcão
+  reward_id          String?  @db.ObjectId
+  observation        String?
+
+  user            User?           @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  state           State?          @relation(fields: [state_id], references: [id])
+  cart            Cart            @relation(fields: [cart_id], references: [id])
+  delivery_man    Delivery_Man?   @relation(fields: [delivery_man_id], references: [id])
+  type_pagament   Type_Pagament   @relation(fields: [type_pagament_id], references: [id])
+  user_adress     User_Adress?    @relation(fields: [user_adress_id], references: [id])
+  discount_coupon Discount_cupom? @relation(fields: [discount_coupon_id], references: [id])
+  reward          Reward?         @relation(fields: [reward_id], references: [id])
+
+  discount_cupom_orders Discount_cupom_orders[]
+  reward_orders         Reward_orders[]
+}
+
+model State {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  state_name String
+
+  orders Order[]
+}
+
+model Delivery_Man {
+  id                String @id @default(auto()) @map("_id") @db.ObjectId
+  delivery_man_name String
+
+  orders Order[]
+}
+
+model Type_Pagament {
+  id                 String @id @default(auto()) @map("_id") @db.ObjectId
+  type_pagament_name String
+
+  orders Order[]
+}
+
+model Product {
+  id            String  @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  description   String
+  value         Float
+  category_id   String  @db.ObjectId
+  product_image String
+  stock_id      String? @db.ObjectId
+
+  category Category @relation(fields: [category_id], references: [id], onDelete: Cascade)
+
+  cart_product   Cart_product[] @relation("topping_1")
+  cart_product_2 Cart_product[] @relation("topping_2")
+  cart_product_3 Cart_product[] @relation("topping_3")
+  stock          Stock[]
+  favorites      Favorite[]
+}
+
+model Stock {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  product_id String @db.ObjectId
+  quantity   Int
+
+  product Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
+}
+
+model Category {
+  id            String @id @default(auto()) @map("_id") @db.ObjectId
+  category_name String
+
+  products Product[]
+}
+
+model Discount_cupom {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  cupom_name      String
+  discount        Int
+  expiration_date DateTime
+  active          Int
+  type_coupon     Int //0 - Public / 1 - Private
+
+  discount_cupom_orders Discount_cupom_orders[]
+  order                 Order[]
+}
+
+model Discount_cupom_orders {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  discount_cupom_id String   @db.ObjectId
+  order_id          String   @db.ObjectId
+  user_id           String   @db.ObjectId
+  created_at        DateTime @default(now())
+
+  user           User           @relation(fields: [user_id], references: [id])
+  order          Order          @relation(fields: [order_id], references: [id])
+  discount_cupom Discount_cupom @relation(fields: [discount_cupom_id], references: [id], onDelete: Cascade)
+}
+
+model Cart {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  user_id   String @db.ObjectId
+  is_active Int    @default(1)
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  cart_product Cart_product[]
+  order        Order[]
+}
+
+model Cart_product {
+  id           String  @id @default(auto()) @map("_id") @db.ObjectId
+  product_id   String  @db.ObjectId
+  product_id_2 String? @db.ObjectId
+  product_id_3 String? @db.ObjectId
+  cart_id      String  @db.ObjectId
+  observation  String?
+  quantity     Int
+  size         Int     @default(0) //0 = normal, 1 = brotinho
+  value        String
+
+  cart      Cart     @relation(fields: [cart_id], references: [id], onDelete: Cascade)
+  product   Product  @relation("topping_1", fields: [product_id], references: [id])
+  product_2 Product? @relation("topping_2", fields: [product_id_2], references: [id])
+  product_3 Product? @relation("topping_3", fields: [product_id_3], references: [id])
+}
+
+model Favorite {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  user_id    String @db.ObjectId
+  product_id String @db.ObjectId
+
+  user User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  post Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
+}
+
+model Reward {
+  id              String  @id @default(auto()) @map("_id") @db.ObjectId
+  quantity_points Int
+  image           String
+  product_id      String? @db.ObjectId
+  discount        Int?
+  type_reward     Int //0 - Disconto / 1 - Produto
+  name            String
+
+  reward_orders Reward_orders[]
+  order         Order[]
+}
+
+model Reward_orders {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  reward_id   String   @db.ObjectId
+  order_id    String?  @db.ObjectId
+  user_id     String   @db.ObjectId
+  created_at  DateTime @default(now())
+  isUsed      Int      @default(0) //0 = não usado, 1 = usado
+  reward_code String
+
+  user   User   @relation(fields: [user_id], references: [id])
+  order  Order? @relation(fields: [order_id], references: [id])
+  reward Reward @relation(fields: [reward_id], references: [id], onDelete: Cascade)
+}
+
+model General_data {
+  id                 String  @id @default(auto()) @map("_id") @db.ObjectId
+  openingHours       String
+  closingHours       String
+  cellphone          String
+  cellphone2         String?
+  telephone          String
+  telephone2         String?
+  isOpening          Boolean
+  pixKey             String
+  pixName            String
+  deliveryFeeInside  Int
+  deliveryFeeOutside Int
+}
+
+model CarouselImages {
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  image String
+}
+

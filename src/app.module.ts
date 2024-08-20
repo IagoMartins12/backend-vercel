@@ -1,5 +1,5 @@
-import { VenomBotModule } from './venom-bot/venom_bot.module';
-import { VenomBotController } from './venom-bot/venom_bot.controller';
+// import { VenomBotModule } from './venom-bot/venom_bot.module';
+// import { VenomBotController } from './venom-bot/venom_bot.controller';
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
@@ -28,14 +28,14 @@ import { RewardModule } from './reward/reward.module';
 import { GeneralDataModule } from './general_data/general_data.module';
 import { CouponsModule } from './coupons/coupons.module';
 import { DeliveryManModule } from './delivery_man/delivery_man.module';
-import { OrderGateway } from './order/order.gateway';
+// import { OrderGateway } from './order/order.gateway';
 import { MessagesModule } from './messages/messages.module';
 import { CarouselModule } from './carousel/carousel.module';
 import { SwaggerAuthInterceptor } from './auth/interceptor/auth.interceptor';
 
 @Module({
   imports: [
-    VenomBotModule,
+    // VenomBotModule,
     PrismaModule,
     UserModule,
     AuthModule,
@@ -58,7 +58,7 @@ import { SwaggerAuthInterceptor } from './auth/interceptor/auth.interceptor';
     CarouselModule,
   ],
   controllers: [
-    VenomBotController,
+    // VenomBotController,
     AppController,
     CategoryController,
     TypePagamentController,
@@ -78,7 +78,7 @@ import { SwaggerAuthInterceptor } from './auth/interceptor/auth.interceptor';
     },
     ScheduledTaskService,
     EmailsService,
-    OrderGateway,
+    // OrderGateway,
   ],
 })
 export class AppModule {}

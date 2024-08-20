@@ -20,6 +20,6 @@ export class MessagesController {
   @Post('send')
   async sendMessage(@Body() sendMessageDto: SendMessageDto) {
     const { to, message } = sendMessageDto;
-    return this.messagesService.sendMessage(to, message);
+    // return this.messagesService.sendMessage(to, message);
   }
 }

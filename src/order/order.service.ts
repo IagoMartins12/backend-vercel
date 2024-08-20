@@ -3,7 +3,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Cart, User } from '@prisma/client';
 import { CartService } from 'src/cart/cart.service';
-import { OrderGateway } from './order.gateway';
+// import { OrderGateway } from './order.gateway';
 import { MessagesService } from 'src/messages/messages.service';
 
 @Injectable()
@@ -12,7 +12,7 @@ export class OrderService {
     private readonly prisma: PrismaService,
     private readonly cartService: CartService,
     private readonly messagesService: MessagesService,
-    private readonly orderGateway: OrderGateway,
+    // private readonly orderGateway: OrderGateway,
   ) {}
 
   //Routes functions
@@ -170,7 +170,7 @@ export class OrderService {
   private async handlePostOrderCreation(order: any, cart: any, user: User) {
     await this.desativeUserCart(cart);
     await this.createNewCart(user);
-    this.orderGateway.handleNewOrder(order);
+    // this.orderGateway.handleNewOrder(order);
   }
 
   private async createOrderWithCoupon(
